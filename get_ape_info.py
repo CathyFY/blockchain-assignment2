@@ -31,11 +31,11 @@ def get_ape_info(ape_id):
     contract = web3.eth.contract(address=contract_address, abi=abi)
 
     owner = contract.functions.ownerOf(ape_id).call()
-    
+
     token_uri = contract.functions.tokenURI(ape_id).call()
 
-    if token_uri.startswith("ipfs://"):
-        token_uri = token_uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+    # if token_uri.startswith("ipfs://"):
+    #     token_uri = token_uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
 
     metadata = requests.get(token_uri).json()
     image = metadata.get("image", "")
