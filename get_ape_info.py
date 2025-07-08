@@ -28,24 +28,24 @@ def get_ape_info(ape_id):
     data = {'owner': "", 'image': "", 'eyes': ""}
 
     # YOUR CODE HERE
-    data['owner'] = contract.functions.ownerOf(ape_id).call()
+    contract = web3.eth.contract(address=contract_address, abi=abi)
 
+    owner = contract.functions.ownerOf(ape_id).call()
+    
     token_uri = contract.functions.tokenURI(ape_id).call()
 
     if token_uri.startswith("ipfs://"):
-        ipfs_hash = token_uri.replace("ipfs://", "")
-        metadata_url = f"https://gateway.pinata.cloud/ipfs/{ipfs_hash}"
-    else:
-        metadata_url = token_uri
+        token_uri = token_uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
 
-    response = requests.get(metadata_url)
-    metadata = response.json()
-
-    data['image'] = metadata.get('image', '')
-    for trait in metadata.get('attributes', []):
-        if trait.get('trait_type') == 'Eyes':
-            data['eyes'] = trait.get('value')
+    metadata = requests.get(token_uri).json()
+    image = metadata.get("image", "")
+    eyes = ""
+    for attr in metadata.get("attributes", []):
+        if attr.get("trait_type") == "Eyes":
+            eyes = attr.get("value")
             break
+
+    data = {'owner': owner, 'image': image, 'eyes': eyes}
 
 
     assert isinstance(data, dict), f'get_ape_info{ape_id} should return a dict'
